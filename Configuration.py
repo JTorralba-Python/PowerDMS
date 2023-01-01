@@ -1,0 +1,5 @@
+UserIDInput = b'gAAAAABjXgP-vriax01hJJDrBwuqWUMp7NYJdxIXceo-KkuIiDfDtwM9jz3vuSUx67o90kpasmEdWNqNEllNVzlrpNy9CNadxw=='
+PasswordInput = b'gAAAAABjXgP-YXpE8HCJOoQmCplooERemtbizNps4Bq6RUh8Qor10ca9u5-jW3uGIWzEfD0JC1qwJjqYKlzdBEjfhuZMClatVA=='
+EMail = b'gAAAAABjXgP-mgD0jAJdk80E3AAMwYgGPrR1FiTtYIzHsdblBamr7hbO2_Veg2gyEsrlYOBqFsHfJPUmc3W9hLX20WO5tcR51cEFmgxOE6GXOs27i5ni1s8='
+Folder = b'gAAAAABjXgP-MoBTQtrGr0JmYfbpeWjtx01WZN7PAXA96tyHR_izu5FiXMxxBJkOTDyis5v-6CmUGQS2uTjauxsTCR6X480O7g=='
+Path = b'gAAAAABjXgP-98XfUfITZaK_8K4De5gbRs_jM40kgpi0NYOJyiGubcgXPLHCqrcUtq5lYaaSDNh_pGnAi0uJGaJ9hxvFtoIybQ=='
