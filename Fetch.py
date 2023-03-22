@@ -20,6 +20,9 @@ from zipfile import ZipFile
 
 import shutil
 
+import logging
+
+from datetime import datetime
 
 def Clear():
 
@@ -50,6 +53,8 @@ def Global():
 
     global Stage
     Stage = 'Documents'
+
+    logging.basicConfig(filename='DEBUG.log', encoding='utf-8', level=logging.INFO)
 
 
 def Page_Is_Loading(Session):
@@ -269,8 +274,17 @@ def MigrateDocuments():
             if File.lower() == 'index.htm' and os.path.isfile(Source):
                 os.remove(Source)
             else:
-                shutil.move(Source, Target)
-                print(Target)
+                try:
+                    Now = datetime.now()
+                    shutil.move(Source, Target)
+                    print(Target)
+                except Exception as X:
+                    TimeStamp = Now.strftime("%Y-%m-%d %H:%M:%S")
+                    Message = TimeStamp + " " + str(X)
+                    logging.info(Message)
+                    print(Message)
+                    pass
+                    
 
         if len(os.listdir(Path)) == 0:
             os.rmdir(Path)
