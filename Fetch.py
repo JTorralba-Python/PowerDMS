@@ -13,7 +13,6 @@ from cryptography.fernet import Fernet
 
 import Configuration
 
-import requests
 import Authentication
 
 from zipfile import ZipFile
@@ -66,29 +65,20 @@ def Page_Is_Loading(Session):
             yield False
 
 
-def CreateDocumentsExport():
+def LoginToPortal(Session):
 
-    Options = webdriver.EdgeOptions()
-    Options.add_argument("headless")
-    Options.add_argument("--log-level=3")
-
-    Session = webdriver.Edge(options=Options)
-    
-    Clear()
-
-    print("CreateDocumentsExport")
+    print("LoginToPortal")
     print("--------------------------------------------------")
 
-    Wait = WebDriverWait(Session, 15)
-
-    print("- authentication in progress")
+    print("- authenticating/authorizing")
 
     Session.get('https://powerdms.com/ui/login.aspx?SiteID=ElPasoCSO&formsauth=true')
     time.sleep(Delay)
-
     while not Page_Is_Loading(Session):
         time.sleep(Delay)
         continue
+
+    Wait = WebDriverWait(Session, 5)
 
     Element = Wait.until(expected_conditions.presence_of_element_located((By.ID, "UserIDInput")))
     Element.send_keys(Codec.decrypt(Configuration.UserIDInput).decode())
@@ -99,19 +89,36 @@ def CreateDocumentsExport():
     Element = Wait.until(expected_conditions.presence_of_element_located((By.ID, "userLogin_authenticator_powerDMSUserAuthenticator_powerDMSAuthenticator_LoginBtn")))
     Element.click()
 
-    print("- skip E-Mail verification")
+    #print("- skip E-Mail verification")
 
-    Element = Wait.until(expected_conditions.presence_of_element_located((By.LINK_TEXT, "Continue to PowerDMS")))
-    Element.click()
+    #Element = Wait.until(expected_conditions.presence_of_element_located((By.LINK_TEXT, "Continue to PowerDMS")))
+    #Element.click()
+
+    print()
+
+
+def CreateDocumentsExport(Session):
+
+    print("CreateDocumentsExport")
+    print("--------------------------------------------------")
+
+    print("- navigate to DocumentExport page")
+
+    Session.get('https://powerdms.com/admin/Configuration/AdminMenu.aspx')
+    time.sleep(Delay)
+    while not Page_Is_Loading(Session):
+        time.sleep(Delay)
+        continue
 
     print("- filter folder")
 
     Session.get('https://powerdms.com/admin/Configuration/DocumentExport.aspx')
     time.sleep(Delay)
-
     while not Page_Is_Loading(Session):
         time.sleep(Delay)
         continue
+
+    Wait = WebDriverWait(Session, 5)
 
     Element = Wait.until(expected_conditions.presence_of_element_located((By.ID, "ctl00_ctl00_pageBody_cphConfigurationContent_cbExportAsPdf")))
     Element.click()
@@ -140,10 +147,8 @@ def CreateDocumentsExport():
 
     Alert = Wait.until(expected_conditions.alert_is_present())
     Alert.accept()
-    time.sleep(Delay)  
-
-    Session.quit
-
+    time.sleep(Delay)
+       
     print()
 
 
@@ -152,47 +157,27 @@ def CheckDocumentsExport(Session):
     print("CheckDocumentsExport")
     print("--------------------------------------------------")
 
-    Headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36 Edg/105.0.1343.53'}
+    Wait = WebDriverWait(Session, 5)
 
-    Data_Authentication = {'userLogin$authenticator$powerDMSUserAuthenticator$powerDMSAuthenticator$UserIDInput': Codec.decrypt(Configuration.UserIDInput).decode(),'userLogin$authenticator$powerDMSUserAuthenticator$powerDMSAuthenticator$PasswordInput': Codec.decrypt(Configuration.PasswordInput).decode(),'__EVENTTARGET': 'userLogin$authenticator$powerDMSUserAuthenticator$powerDMSAuthenticator$LoginBtn','__VIEWSTATE': Authentication.VIEWSTATE,'__EVENTVALIDATION': Authentication.EVENTVALIDATION}
+    Ready = False
 
-    print("- authentication in progress")
+    while not Ready:
 
-    Session.post('https://powerdms.com/ui/login.aspx', data=Data_Authentication, headers=Headers)
+        print('- DocumentsExport.zip "IN PROGRESS..."')
 
-    Response = Session.get('https://powerdms.com/users/13720732')
+        Session.get('https://powerdms.com/admin/Configuration/DocumentExport.aspx')
+        while not Page_Is_Loading(Session):
+            time.sleep(Delay)
+            continue
 
-    X = Response.text.split(',"email":"')
-    Y = X[1].split('","givenName":')
+        try:
+            Element = Wait.until(expected_conditions.presence_of_element_located((By.ID, "ctl00_ctl00_pageBody_cphConfigurationContent_hlDocumentExportDownload")))
+            if Element:
+                Ready = True
+        except Exception as E:
+            pass
 
-    EMail = Y[0].lower()
-
-    if EMail == Codec.decrypt(Configuration.EMail).decode().lower():
-
-        print("- authentication process PASS")
-
-        Status = ""
-
-        while Status != "complete":
-
-            Response = Session.get("https://powerdms.com/admin/Configuration/DocumentExport.aspx")
-
-            time.sleep(5)
-
-            try:
-                X = Response.text.split('class="successTxt">')
-                Y = X[1].split('</span>')
-                Status = Y[0].lower()
-            except:
-                pass
-
-            print("- DocumentsExport.zip file is INITIALIZING")
-
-        print("- DocumentsExport.zip file is READY")
-
-    else:
-
-        print("- authentication process FAIL.")
+    print('- DocumentsExport.zip "COMPLETE"')
 
     print()
 
@@ -202,29 +187,33 @@ def DownloadDocumentsExport(Session):
     print("DownloadDocumentsExport")
     print("--------------------------------------------------")
 
-    print("\x1b[?25l") # Hide Cursor
+    try:
+        if os.path.isfile(Zip):
+            os.remove(Zip)
+    except Exception as E:
+        pass
 
-    with open(Zip, 'wb') as File:
+    Wait = WebDriverWait(Session, 5)
 
-        Response = Session.get('https://powerdms.com/Documents/10095/DocumentsExport.zip', stream=True)
-        Size = Response.headers.get('content-length')
+    Session.get('https://powerdms.com/Documents/10095/DocumentsExport.zip')
+    while not Page_Is_Loading(Session):
+        time.sleep(Delay)
+        continue
 
-        if Size is None:
-            File.write(Response.content)
-        else:
-            Current = 0
-            Size = int(Size)
+    Ready = False
 
-            for Data in Response.iter_content(chunk_size=max(int(Size/1000), 1024*1024)):
+    while not Ready:
 
-                Current += len(Data)
-                File.write(Data)
-                Done = int(50*Current/Size)
+        print('- DocumentsExport.zip "DOWNLOADING..."')
 
-                sys.stdout.write('\r{}{}'.format('█' * Done, '.' * (50-Done)))
-                sys.stdout.flush()
+        try:
+            if os.path.isfile(Zip):
+                Ready = True
+                print('- DocumentsExport.zip "DOWNLOADED"')
+        except Exception as E:
+            pass
 
-    print("\x1b[?25h") # Show Cursor
+        time.sleep(Delay)
 
     print()
 
@@ -238,9 +227,9 @@ def ExtractDocumentsExport():
         os.makedirs(Stage, 777)
 
     with ZipFile(Zip, 'r') as zipObj:
-        print('- DocumentsExport.zip extract is INITIALIZED')
+        print('- DocumentsExport.zip "EXTRACTING"')
         zipObj.extractall(path = Stage)
-        print('- DocumentsExport.zip extract is COMPLETE')
+        print('- DocumentsExport.zip "EXTRACTED"')
 
     os.remove(Zip)
 
@@ -290,7 +279,7 @@ def MigrateDocuments():
             os.rmdir(Path)
 
     print()
-    print("- migrate complete")
+    print('- DocmentsExport.zip "MIGRATED"')
 
     time.sleep(Delay) 
 
@@ -303,14 +292,27 @@ def Main():
 
         try:
 
-            CreateDocumentsExport()
+            CWD = os.getcwd()
 
-            with requests.Session() as Session:
+            Options = webdriver.EdgeOptions()
+           
+            Preferences = {"download.default_directory":CWD}
+            Options.add_experimental_option("prefs", Preferences);
+            Options.add_argument("--log-level=3")
+            #Options.add_argument("headless")
 
-                CheckDocumentsExport(Session)
-                DownloadDocumentsExport(Session)
-                ExtractDocumentsExport()
+            Session = webdriver.Edge(options=Options)
 
+            Clear()
+
+            LoginToPortal(Session)
+            CreateDocumentsExport(Session)
+            CheckDocumentsExport(Session)
+            DownloadDocumentsExport(Session)
+
+            Session.quit
+
+            ExtractDocumentsExport()
             MigrateDocuments()
 
             break
@@ -318,7 +320,7 @@ def Main():
         except Exception as E:
 
             print(E)
-            time.sleep(Delay * 12)
+            time.sleep(Delay * 17)
 
         finally:
 
