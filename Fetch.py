@@ -279,7 +279,7 @@ def MigrateDocuments():
             os.rmdir(Path)
 
     print()
-    print('- DocmentsExport.zip "MIGRATED"')
+    print('- DocumentsExport.zip "MIGRATED"')
 
     time.sleep(Delay) 
 
