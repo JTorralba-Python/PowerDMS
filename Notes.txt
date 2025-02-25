@@ -1,0 +1,7 @@
+Install/upgrade DGE WebDriver and put in project directory and Windows PATH environment. Version must match or be compatible to EDGE browser version.
+
+https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver
+
+2) Install/upgrade Selenium framework.
+
+pip install -U selenium
