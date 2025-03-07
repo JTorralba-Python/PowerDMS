@@ -286,11 +286,28 @@ def MigrateDocuments():
     print()
 
 
+def Delete_Folders_Starting_With(path, start_string):   
+    try:
+        for folder_name in os.listdir(path):
+            folder_path = os.path.join(path, folder_name)
+            if os.path.isdir(folder_path) and folder_name.startswith(start_string):
+                shutil.rmtree(folder_path)
+                print(f"Deleted folder: {folder_path}")
+    except Exception as e:
+        print(f"Exception: {e}")
+        logging.info(f"Exception: {e}")
+
+
 def Main():
 
     while True:
 
         try:
+        
+            print("Clean/Purge EDGE Residual Scope Folder(s)")
+            print("--------------------------------------------------")
+            
+            Delete_Folders_Starting_With('C:\Program Files', 'scoped_dir')
 
             CWD = os.getcwd()
 
@@ -313,7 +330,7 @@ def Main():
             Session.quit
 
             ExtractDocumentsExport()
-            MigrateDocuments()
+            MigrateDocuments()         
 
             break
 
@@ -324,7 +341,13 @@ def Main():
 
         finally:
 
-            print()
+            print()         
+           
+            print("Clean/Purge EDGE Residual Folder(s)")
+            print("--------------------------------------------------")
+            
+            Delete_Folders_Starting_With('C:\Program Files', 'edge_BITS_')
+            Delete_Folders_Starting_With('C:\Program Files', 'msedge_url_fetcher_')
 
 
 if __name__ == '__main__':
