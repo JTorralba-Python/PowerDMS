@@ -94,8 +94,8 @@ def LoginToPortal(Session):
     #Element = Wait.until(expected_conditions.presence_of_element_located((By.LINK_TEXT, "Continue to PowerDMS")))
     #Element.click()
 
+    time.sleep(1)
     print()
-
 
 def CreateDocumentsExport(Session):
 
