@@ -7,6 +7,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.common.keys import Keys
 
 import Secret
 from cryptography.fernet import Fernet
@@ -123,20 +124,28 @@ def CreateDocumentsExport(Session):
     Element = Wait.until(expected_conditions.presence_of_element_located((By.ID, "ctl00_ctl00_pageBody_cphConfigurationContent_cbExportAsPdf")))
     Element.click()
 
-    Element = Wait.until(expected_conditions.presence_of_element_located((By.ID, "ctl00_ctl00_pageBody_cphConfigurationContent_rcbFolders")))
+    #Element = Wait.until(expected_conditions.presence_of_element_located((By.ID, "ctl00_ctl00_pageBody_cphConfigurationContent_rcbFolders")))
+    Element = Wait.until(expected_conditions.presence_of_element_located((By.ID, "folders")))
     Element.click()
+   
+    #Element = Wait.until(expected_conditions.presence_of_element_located((By.NAME, "searchInput")))
+    #Element.click()
+    Element.send_keys(Codec.decrypt(Configuration.Folder).decode())   
+    time.sleep(1)
 
-    Element = Wait.until(expected_conditions.presence_of_element_located((By.NAME, "searchInput")))
-    Element.click()
-    Element.send_keys(Codec.decrypt(Configuration.Folder).decode())
+    Element.send_keys(Keys.TAB)
+    time.sleep(1)
     
-    Element = Wait.until(expected_conditions.presence_of_element_located((By.CLASS_NAME, "powGlobalSearchInput_searchItem")))
-    Elements = Session.find_elements(By.CLASS_NAME,"powGlobalSearchInput_searchItem")
-    for Element in Elements:
-        Title = Element.get_attribute("title")
-        if Title == Codec.decrypt(Configuration.Folder).decode():
-            Element.click()
-            break
+    Element.send_keys(Keys.ENTER)
+    time.sleep(1)
+    
+    #Element = Wait.until(expected_conditions.presence_of_element_located((By.CLASS_NAME, "powGlobalSearchInput_searchItem")))
+    #Elements = Session.find_elements(By.CLASS_NAME,"powGlobalSearchInput_searchItem")
+    #for Element in Elements:
+    #    Title = Element.get_attribute("title")
+    #    if Title == Codec.decrypt(Configuration.Folder).decode():
+    #        Element.click()
+    #        break
 
     print("- initialize export")
  
@@ -299,7 +308,10 @@ def Delete_Folders_Starting_With(path, start_string):
 
 
 def Main():
-
+    Clear()
+    
+    time.sleep(5)
+    
     while True:
 
         try:
@@ -348,7 +360,8 @@ def Main():
             
             Delete_Folders_Starting_With('C:\Program Files', 'edge_BITS_')
             Delete_Folders_Starting_With('C:\Program Files', 'msedge_url_fetcher_')
-
+            Delete_Folders_Starting_With('C:\Program Files', 'chrome_url_fetcher_')
+            Delete_Folders_Starting_With('C:\Program Files', 'chrome_Unpacker_')
 
 if __name__ == '__main__':
 
