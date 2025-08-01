@@ -39,7 +39,8 @@ Else
 
   $WebClient = New-Object System.Net.WebClient
 
-  $URL = "https://msedgedriver.azureedge.net/$InstalledVersion/edgedriver_win64.zip"
+  #$URL = "https://msedgedriver.azureedge.net/$InstalledVersion/edgedriver_win64.zip"
+  $URL = "https://msedgedriver.microsoft.com/$InstalledVersion/edgedriver_win64.zip"
 
   Write-Output $URL
   
